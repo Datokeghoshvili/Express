@@ -36,11 +36,11 @@ const getProductsCount= ('/products/count', (req, res) => {
   const createProduct = ('/products', (req, res) => {
     const newProduct ={...req.body, createdAt: Date.now() , stock: 10 }
     const products = JSON.parse(data);
-    const {name, price} = req.body;
+    const {name, price, id} = req.body;
     if (!name || !price ) {
       return res.status(400).json({error: 'name and price are required'});
     } 
-     if (products.some(product => product.name === name)) {
+     if (products.some(product => product.id === id)) {
       return res.status(400).json({ error: "Product already exists!" });
     }
   

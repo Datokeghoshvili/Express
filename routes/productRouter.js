@@ -1,5 +1,6 @@
 import express from 'express';
 const productRouter = express.Router();
+import productSlugify from '../middlewares/productSlugify.js'; 
 import {
   getProducts,
   getProductsCount,
@@ -13,7 +14,7 @@ import {
   deleteAllProduct
 } from '../controllers/productController.js';
 
-productRouter.route('/').get(getProducts).post(createProduct);
+productRouter.route('/').get(getProducts).post(productSlugify, createProduct);
 productRouter.route('/count').get(getProductsCount);
 productRouter.route('/most-expensive').get(getExpensiveProduct);
 productRouter.route('/latest').get(getLastAddedProduct);  // ✅ Fixed naming
