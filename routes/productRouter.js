@@ -17,9 +17,9 @@ import {
 productRouter.route('/').get(getProducts).post(productSlugify, createProduct);
 productRouter.route('/count').get(getProductsCount);
 productRouter.route('/most-expensive').get(getExpensiveProduct);
-productRouter.route('/latest').get(getLastAddedProduct);  // ✅ Fixed naming
-productRouter.route('/by/:id').post(byProduct).put(changeProductById).patch(updateProductById);
-productRouter.route('/:id').put(updateProductById).delete(deleteProductById);
+productRouter.route('/latest').get(getLastAddedProduct);  
+productRouter.route('/by/:_id').post(byProduct).put(changeProductById).patch(updateProductById);
+productRouter.route('/:_id').put(updateProductById).delete(deleteProductById);
 productRouter.route('/delete-all').delete(deleteAllProduct);
 
 export default productRouter;

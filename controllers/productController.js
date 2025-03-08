@@ -1,13 +1,13 @@
 import fs from 'fs';
 import mongoose from 'mongoose';
 
-// Backup the JSON file 
+// Backup the JSON file
 fs.copyFileSync('./data/product.json', './data/product-backup.json');
 console.log('Backup created');
 
 // Define MongoosE Schema
 const productSchema = new mongoose.Schema({
-  id: { type: Number, required: true, unique: true },
+  id: { type: Number, required: true, unique: true }, // Keep your custom id field
   name: { type: String, required: true },
   price: { type: Number, required: true },
   description: { type: String, required: true },
@@ -85,8 +85,8 @@ const createProduct = async (req, res) => {
 // Buy a product (reduce stock by 1)
 const byProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Product.findOne({ id });
+    const { _id } = req.params; // Use MongoDB _id
+    const product = await Product.findById(_id);
     if (!product) return res.status(404).json({ error: "Product not found!" });
 
     if (product.stock > 0) {
@@ -101,12 +101,11 @@ const byProduct = async (req, res) => {
   }
 };
 
-//
-//  Replace a product by id
+// Replace a product  _id
 const changeProductById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedProduct = await Product.findOneAndReplace({ id }, req.body, { new: true });
+    const { _id } = req.params; // Use MongoDB _id
+    const updatedProduct = await Product.findByIdAndReplace(_id, req.body, { new: true });
     if (!updatedProduct) return res.status(404).json({ error: "Product not found!" });
     res.json(updatedProduct);
   } catch (error) {
@@ -114,11 +113,11 @@ const changeProductById = async (req, res) => {
   }
 };
 
-// Update product partially 
+// Update product partially by  _id
 const updateProductById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedProduct = await Product.findOneAndUpdate({ id }, req.body, { new: true });
+    const { _id } = req.params; // Use MongoDB _id
+    const updatedProduct = await Product.findByIdAndUpdate(_id, req.body, { new: true });
     if (!updatedProduct) return res.status(404).json({ error: "Product not found!" });
     res.json(updatedProduct);
   } catch (error) {
@@ -126,11 +125,11 @@ const updateProductById = async (req, res) => {
   }
 };
 
-// Delete a product by ID
+// Delete a product _id
 const deleteProductById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const deletedProduct = await Product.findOneAndDelete({ id });
+    const { _id } = req.params; // Use MongoDB _id
+    const deletedProduct = await Product.findByIdAndDelete(_id);
     if (!deletedProduct) return res.status(404).json({ error: "Product not found!" });
     res.json({ message: "Product deleted successfully!" });
   } catch (error) {
