@@ -1,0 +1,23 @@
+[33mcommit 9f088f8bfdaa2cb6718b67d4305328f1a615bde2[m[33m ([m[1;36mHEAD -> [m[1;32mdevelopment[m[33m)[m
+Author: Davit Keghoshvili <kegoshvili.d@gmail.com>
+Date:   Sun Mar 9 00:05:57 2025 +0400
+
+    Setup MongoDB with Mongoose schema & model, connected database, and refactored API
+
+[33mcommit 6d60104272a72b98ef8697f52217369a31e55180[m[33m ([m[1;31morigin/development[m[33m)[m
+Author: Davit Keghoshvili <kegoshvili.d@gmail.com>
+Date:   Sat Mar 8 23:20:22 2025 +0400
+
+    Setup MongoDB with Mongoose schema & model, connected database, and refactored API
+
+[33mcommit 271e3c1af41aefefd9e6e43b8d8d3d65c8731811[m
+Author: Davit <110598238+Datokeghoshvili@users.noreply.github.com>
+Date:   Mon Mar 3 20:51:48 2025 +0400
+
+    Refactoring userRoute and userControllers, create and add middlewares and save in separated folder, add rate limit middleweare for requests, create MAINTENANSE env variable for manipulate  server response, add middleware for add slugy field om product and middleweare for log request time and request url
+
+[33mcommit ad87e1b59a3baae7dbd10b28261412ee44d1d68c[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m
+Author: Davit <110598238+Datokeghoshvili@users.noreply.github.com>
+Date:   Sun Mar 2 22:33:39 2025 +0400
+
+    refactoring

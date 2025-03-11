@@ -1,29 +1,41 @@
 import fs from 'fs';
-import mongoose from 'mongoose';
+import Product from '../models/productModel.js';
 
 // Backup the JSON file
 fs.copyFileSync('./data/product.json', './data/product-backup.json');
 console.log('Backup created');
 
 // Define MongoosE Schema
-const productSchema = new mongoose.Schema({
-  id: { type: Number, required: true, unique: true }, // Keep your custom id field
-  name: { type: String, required: true },
-  price: { type: Number, required: true },
-  description: { type: String, required: true },
-  stock: { type: Number, required: true },
-  slug: { type: String },
-  createdAt: { type: Date, default: Date.now },
-});
-
-// Create Mongoose Model
-const Product = mongoose.model('Product', productSchema);
 
 // Get all products
 const getProducts = async (req, res) => {
+  const exclcudeFields = ['page', 'sort', 'limit', 'fields'];
+  const queryObj = { ...req.query };
+  
   try {
-    const products = await Product.find();
-    res.json({ productQuantity: products.length, products });
+    let query =  Product.find();
+    if (!query) return res.status(404).json({ error: "No products available!" });
+    exclcudeFields.forEach((el) => delete queryObj[el]);
+    query =  query.find(queryObj);
+    if(req.query.sort) query = query.sort(req.query.sort);
+    if(req.query.fields) query = query.select(req.query.fields.split(',').join(' '));
+    console.log(query);
+    let page = req.query.page * 1 || 1;
+    let limit = req.query.limit * 1 || 100;
+    let skip = (page - 1) * limit;
+    
+    query = query.skip(skip).limit(limit);
+    console.log({ page, limit, skip });
+
+
+    const products = await query;
+    console.log("this is queryobj",queryObj)
+  
+    
+    if (!products) return res.status(404).json({ error: "No products available!" });
+    res.json(products);
+    
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -66,9 +78,9 @@ const getLastAddedProduct = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     const { name, price, id, description, stock } = req.body;
-    if (!name || !price) {
-      return res.status(400).json({ error: 'Name and price are required' });
-    }
+    // if (!name || !price) {
+    //   return res.status(400).json({ error: 'Name and price are required' });
+    // }
     const existingProduct = await Product.findOne({ id });
     if (existingProduct) {
       return res.status(400).json({ error: "Product already exists!" });
@@ -104,7 +116,7 @@ const byProduct = async (req, res) => {
 // Replace a product  _id
 const changeProductById = async (req, res) => {
   try {
-    const { _id } = req.params; // Use MongoDB _id
+    const { _id } =  req.params; // Use MongoDB _id
     const updatedProduct = await Product.findByIdAndReplace(_id, req.body, { new: true });
     if (!updatedProduct) return res.status(404).json({ error: "Product not found!" });
     res.json(updatedProduct);
@@ -128,7 +140,7 @@ const updateProductById = async (req, res) => {
 // Delete a product _id
 const deleteProductById = async (req, res) => {
   try {
-    const { _id } = req.params; // Use MongoDB _id
+    const { _id } = req.params; 
     const deletedProduct = await Product.findByIdAndDelete(_id);
     if (!deletedProduct) return res.status(404).json({ error: "Product not found!" });
     res.json({ message: "Product deleted successfully!" });
