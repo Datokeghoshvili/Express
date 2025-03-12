@@ -1,11 +1,10 @@
 import fs from 'fs';
 import Product from '../models/productModel.js';
-
+import filterService from './services/filter.js';
 // Backup the JSON file
 fs.copyFileSync('./data/product.json', './data/product-backup.json');
 console.log('Backup created');
 
-// Define MongoosE Schema
 
 // Get all products
 const getProducts = async (req, res) => {
@@ -13,24 +12,8 @@ const getProducts = async (req, res) => {
   const queryObj = { ...req.query };
   
   try {
-    let query =  Product.find();
-    if (!query) return res.status(404).json({ error: "No products available!" });
-    exclcudeFields.forEach((el) => delete queryObj[el]);
-    query =  query.find(queryObj);
-    if(req.query.sort) query = query.sort(req.query.sort);
-    if(req.query.fields) query = query.select(req.query.fields.split(',').join(' '));
-    console.log(query);
-    let page = req.query.page * 1 || 1;
-    let limit = req.query.limit * 1 || 100;
-    let skip = (page - 1) * limit;
-    
-    query = query.skip(skip).limit(limit);
-    console.log({ page, limit, skip });
-
-
+   const query = filterService(Product, queryObj);
     const products = await query;
-    console.log("this is queryobj",queryObj)
-  
     
     if (!products) return res.status(404).json({ error: "No products available!" });
     res.json(products);
@@ -77,22 +60,34 @@ const getLastAddedProduct = async (req, res) => {
 // Create a new product
 const createProduct = async (req, res) => {
   try {
-    const { name, price, id, description, stock } = req.body;
-    // if (!name || !price) {
-    //   return res.status(400).json({ error: 'Name and price are required' });
-    // }
+    const { id, name, price, description, stock, category } = req.body;
+
+    if (!name || !price || !description || !category) {
+      return res.status(400).json({ error: "Name, price, description, and category are required!" });
+    }
+
     const existingProduct = await Product.findOne({ id });
     if (existingProduct) {
       return res.status(400).json({ error: "Product already exists!" });
     }
 
-    const newProduct = new Product({ id, name, price, description, stock: stock || 10 });
+    const newProduct = new Product({
+      id,
+      name,
+      price,
+      description,
+      stock: stock || 10,
+      category, 
+    });
+
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 // Buy a product (reduce stock by 1)
 const byProduct = async (req, res) => {
@@ -159,6 +154,32 @@ const deleteAllProduct = async (req, res) => {
   }
 };
 
+const getCategoryStats = async (req, res) => {
+  try {
+    const stats = await Product.aggregate([
+      {
+        $match: { category: { $exists: true } },
+      },
+      {
+        $group: {
+          _id: '$category',
+          numProducts: { $sum: 1 },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      {
+        $sort: { avgPrice: 1 },
+      },
+    ]);
+   res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 export {
   getProducts,
   getProductsCount,
@@ -170,4 +191,5 @@ export {
   updateProductById,
   deleteProductById,
   deleteAllProduct,
+  getCategoryStats
 };

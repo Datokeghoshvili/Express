@@ -11,10 +11,14 @@ import {
   changeProductById,
   updateProductById,
   deleteProductById,
-  deleteAllProduct
+  deleteAllProduct,
+  getCategoryStats
+
+
 } from '../controllers/productController.js';
 
 productRouter.route('/').get(getProducts).post(productSlugify, createProduct);
+productRouter.route('/stats').get(getCategoryStats);
 productRouter.route('/count').get(getProductsCount);
 productRouter.route('/most-expensive').get(getExpensiveProduct);
 productRouter.route('/latest').get(getLastAddedProduct);  
